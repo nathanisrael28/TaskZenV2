@@ -1,0 +1,12 @@
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\advice\GlobalExceptionHandler.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\config\SwaggerConfiguration.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\controller\TaskController.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\entity\TaskEntity.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\enums\Status.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\exception\TaskNotFoundException.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\mapper\TaskMapper.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\model\TaskDto.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\repo\TaskRepo.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\service\TaskService.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\service\TaskServiceImpl.java
+C:\SpringProject\TaskZenV2\src\main\java\com\nathan\taskzen\TaskzenApplication.java

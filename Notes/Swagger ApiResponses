@@ -1,0 +1,303 @@
+in my code, becasue of @Apiresposes, its look so clutery, What should I have to do.
+
+You nailed it, Nathan — your controller is clean, but yeah… the @ApiResponses section is getting a bit "cluttercore" 😅 Especially with so many endpoints. Let’s declutter it while keeping full OpenAPI support — the professional way. Here's what we can do:
+
+✅ Option 1: Move Swagger Annotations to a Common Interface (Interface-Driven API Docs)
+Create a TaskControllerDocs.  interface:
+
+public interface TaskControllerDocs {
+
+    @Operation(summary = "Create a Task")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Task created successfully"),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/taskDto")
+    Object createTask(@RequestBody Object taskDto);
+
+
+    @Operation(summary = "Get all Tasks")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Fetched all tasks successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/tasks")
+    Object getAllTask();
+
+    // Add rest of the methods similarly...
+}
+Now your actual controller will just implement that interface:
+
+
+
+
+@RestController
+@RequestMapping("/api")
+@Slf4j
+@Tag(name = "Task Management V2", description = "APIs for managing tasks")
+public class TaskController implements TaskControllerDocs {
+    // No more clunky annotations here!
+}
+✨ Result?
+✅ Cleaner controller
+
+✅ Full Swagger/OpenAPI support
+
+✅ Centralized documentation for easy  ing or reuse
+
+✅ Option 2: Use @ApiResponse at method level only for exceptions
+If interface-based feels too formal for now, try only annotating the most meaningful or differing responses. E.g.:
+
+
+
+
+@Operation(summary = "Create a Task")
+@PostMapping("/taskDto")
+public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskDto) {
+    return new ResponseEntity<>(taskService.createTask(taskDto), HttpStatus.CREATED);
+}
+💡 Swagger will auto-generate 200/201 based on the @PostMapping or @PutMapping if you skip @ApiResponses.
+
+✅ Option 3: Use @ApiResponse group-level at class level (less preferred)
+Not super common, but you can define a reusable @ApiResponses block if your responses are mostly the same.
+
+
+
+
+@ApiResponses({
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Validation error")
+})
+@RestController
+public class TaskController {
+    ...
+}
+🔸 Downside: not specific per endpoint.
+
+🧠 Best Practice Recommendation (my 2 cents):
+Scenario	Best Pick
+Big team / Reuse / Docs in control	✅ Interface-driven (TaskControllerDocs)
+Small project / Clean but flexible	✅ Use only @Operation or one or two key @ApiResponses
+Super minimalist dev	Skip @ApiResponses entirely — let OpenAPI infer based on @ResponseStatus / HttpStatus in controller
+
+i want Option 3: Use @ApiResponse group-level at class level (less preferred), so give me all of them as a common responses
+
+
+
+3/3
+
+ChatGPT said:
+Perfect ra Nathan 💡— you want a global @ApiResponses block at the class level, so that your controller looks neat while still capturing common responses like 400, 404, 500, etc.
+
+Here’s how to implement Option 3 👇
+
+✅ Update Your Controller with Group-Level @ApiResponses
+
+
+
+@RestController
+@RequestMapping("/api")
+@Slf4j
+@Tag(name = "Task Management V2", description = "APIs for creating, retrieving, updating and deleting tasks")
+@ApiResponses({
+    @ApiResponse(responseCode = "400", description = "Bad Request / Validation error"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "500", description = "Internal Server Error")
+})
+public class TaskController {
+That’s it — this applies the listed responses to all methods inside the class.
+
+🧼 Now simplify your method annotations like this:
+
+
+
+@Operation(summary = "Create a Task")
+@PostMapping("/taskDto")
+public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskDto) {
+    log.info("Creating task with title: {}", taskDto.getTitle());
+    return new ResponseEntity<>(taskService.createTask(taskDto), HttpStatus.CREATED);
+}
+
+@Operation(summary = "Get all Tasks")
+@GetMapping("/tasks")
+public ResponseEntity<List<TaskDto>> getAllTask() {
+    log.info("Fetching all tasks");
+    return ResponseEntity.status(HttpStatus.OK).body(taskService.getAllTask());
+}
+
+@Operation(summary = "Get a Task by Id using RequestParam")
+@GetMapping("/task/taskid")
+public ResponseEntity<TaskDto> getTaskById(@RequestParam Long id) {
+    return ResponseEntity.status(HttpStatus.OK).body(taskService.getTask(id));
+}
+
+@Operation(summary = "Get a Task by Id using PathVariable")
+@GetMapping("/task/{id}")
+public ResponseEntity<TaskDto> getTask(@PathVariable Long id) {
+    return ResponseEntity.status(HttpStatus.OK).body(taskService.getTask(id));
+}
+
+@Operation(summary = "Update a Task")
+@PutMapping("/task/")
+public ResponseEntity<Optional<TaskDto>> updateTask(@RequestBody @Valid TaskDto taskDto) {
+    return new ResponseEntity<>(taskService.updateTask(taskDto), HttpStatus.ACCEPTED);
+}
+
+@Operation(summary = "Update Status of a Task")
+@PatchMapping("/task/{id}/status")
+public ResponseEntity<Optional<TaskDto>> updateStatus(@PathVariable Long id, @RequestParam Status status) {
+    return ResponseEntity.status(HttpStatus.ACCEPTED).body(taskService.updateStatus(id, status));
+}
+
+@Operation(summary = "Delete a Task")
+@DeleteMapping("/task/{id}")
+public ResponseEntity<Optional<String>> deleteTask(@PathVariable Long id) {
+    return ResponseEntity.status(HttpStatus.ACCEPTED).body(taskService.deleteTask(id));
+}
+🧠 Things to Know
+You no longer need to repeat @ApiResponses(...) at each method level.
+
+If one method needs extra custom responses, you can still override it locally — method-level @ApiResponses will override the class-level one.
+
+🔥 Summary
+✅ Clean look
+✅ Centralized response docs
+✅ Easy to maintain
+
+You're Swaggering like a boss now 😎
+Want me to also help you extract error handling into a @ControllerAdvice to make that 500, 400, 404 even more predictable and DRY?
+
+
+
+
+
+
+
+
+You said:
+mari sucessfull vatiki ?
+
+
+ChatGPT said:
+Superb question mama! 🤝
+You're absolutely right to ask — we handled all the error response codes globally using class-level @ApiResponses, but what about the successful ones like 200, 201, 202? 🟢
+
+🧠 Here's the golden rule in Swagger/OpenAPI:
+✅ Success responses (200, 201, 202, etc.) should be specified at the method level.
+❌ Do not put them at class level — because they differ per endpoint (GET vs POST vs PUT).
+
+🔍 Why?
+Method Type	Typical Success Code
+GET	200 OK
+POST	201 Created
+PUT/PATCH	202 Accepted
+DELETE	202 Accepted or 204 No Content
+
+So, trying to group these at class level wouldn't be meaningful — it may confuse the Swagger doc and lead to incorrect API behavior representation.
+
+✅ What You Should Do:
+Keep your class-level responses for common failures:
+
+
+
+
+@ApiResponses({
+    @ApiResponse(responseCode = "400", description = "Bad Request / Validation error"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "500", description = "Internal Server Error")
+})
+Then just add 1 success response per method, depending on its purpose:
+
+🔧 Example:
+
+
+
+@Operation(summary = "Create a Task")
+@ApiResponse(responseCode = "201", description = "Task created successfully")
+@PostMapping("/taskDto")
+public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskDto) {
+    return new ResponseEntity<>(taskService.createTask(taskDto), HttpStatus.CREATED);
+}
+
+
+
+@Operation(summary = "Get all Tasks")
+@ApiResponse(responseCode = "200", description = "Fetched all tasks successfully")
+@GetMapping("/tasks")
+public ResponseEntity<List<TaskDto>> getAllTask() {
+    return ResponseEntity.ok(taskService.getAllTask());
+}
+
+
+
+@Operation(summary = "Update a Task")
+@ApiResponse(responseCode = "202", description = "Task updated successfully")
+@PutMapping("/task/")
+public ResponseEntity<Optional<TaskDto>> updateTask(@RequestBody @Valid TaskDto taskDto) {
+    return new ResponseEntity<>(taskService.updateTask(taskDto), HttpStatus.ACCEPTED);
+}
+✨ Final Verdict:
+Type	Where to put it?	Why?
+Success codes	✅ Method-level	Varies based on operation type
+Error codes	✅ Class-level (global)	Same for most/all endpoints
+
+Why in swager for every response schema is coming. i dont want
+
+ChatGPT said:
+Great catch ra Nathan 👀 — what you're seeing in the Swagger UI is OpenAPI auto-generating response schemas for every response code (like 200, 400, 404 etc.) based on your controller’s return type (ResponseEntity<TaskDto> or Optional<TaskDto>).
+
+That’s why it’s showing the same schema (i.e., TaskDto) even for error responses — which is not correct and also clutters the UI 💥.
+
+🧨 Problem:
+Springdoc/OpenAPI is assuming all response codes return the same model (TaskDto) — unless you explicitly tell it otherwise.
+
+✅ Solution: Use @ApiResponse(..., content = @Content(...)) and set content = @Content() for error responses
+By setting content = @Content() explicitly, you tell Swagger:
+
+❌ Don't attach any schema to this response.
+🧼 Just describe it — don’t generate dummy example JSON.
+
+🔧 Example Fix:
+Instead of this (which causes schema generation for 400/404):
+
+
+
+
+@ApiResponse(responseCode = "400", description = "Bad Request / Validation error")
+@ApiResponse(responseCode = "404", description = "Resource not found")
+Do this 👇 (clean, no schema block shown):
+
+
+
+
+@ApiResponse(responseCode = "400", description = "Bad Request / Validation error", content = @Content)
+@ApiResponse(responseCode = "404", description = "Resource not found", content = @Content)
+You can apply this at both method or class level.
+
+✅ Final @ApiResponses at class level (your case)
+
+
+
+@ApiResponses({
+    @ApiResponse(responseCode = "400", description = "Bad Request / Validation error", content = @Content),
+    @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content),
+    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content)
+})
+Now your Swagger UI will show the code and description only, without dumping the schema block.
+
+🧪 Bonus Tip:
+If you're using a custom error class (like ErrorResponse), you can show it only for 400, and leave 404/500 clean:
+
+
+
+
+@ApiResponse(responseCode = "400", description = "Validation error",
+             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+🧼 TL;DR:
+You want...	Use this
+No schema shown in Swagger	@ApiResponse(..., content = @Content)
+Custom error model shown only	Use schema = @Schema(implementation = MyError.class)
+Full cleanup (your case)	✅ Do this at class level for all 400/404/500 codes
+
+

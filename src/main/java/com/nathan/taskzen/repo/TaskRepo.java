@@ -1,6 +1,6 @@
 package com.nathan.taskzen.repo;
 
-import com.nathan.taskzen.entity.TaskEntity;
+import com.nathan.taskzen.model.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
