@@ -1,0 +1,108 @@
+What is logback.xml?
+logback.xml is the central config file for Logback (SLF4J’s native logging backend).
+It defines where logs go, how they look, what level to log, and rotation policies.
+
+🧩 Basic Structure
+xml
+Copy
+Edit
+<configuration>
+
+    <!-- Optional: set a property -->
+    <property name="LOG_FILE" value="logs/app.log"/>
+
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_FILE}</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Rolling File Appender -->
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- File name pattern with date -->
+            <fileNamePattern>logs/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- Keep logs for 7 days -->
+            <maxHistory>7</maxHistory>
+            <!-- Optional total size cap -->
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root Logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ROLLING" />
+    </root>
+
+    <!-- Specific Package Logger -->
+    <logger name="com.nathan.taskzen" level="DEBUG" additivity="false">
+        <appender-ref ref="ROLLING"/>
+    </logger>
+
+</configuration>
+🧠 Explanation of Key Tags
+Tag/Element	Purpose
+<configuration>	Root element. Required.
+<property>	Declares a reusable variable (like file path).
+<appender>	Where to log: console, file, rolling file etc.
+<encoder>	Defines how logs are formatted.
+<pattern>	Format of logs – date, level, logger name, message, etc.
+<rollingPolicy>	Manages log file rotation. Use time-based or size-based.
+<root>	Default logging level + appenders for all classes.
+<logger>	Target a specific package/class and override root config.
+
+📊 Common %pattern Format Placeholders
+Code	Meaning
+%d{}	Date (e.g., %d{HH:mm:ss})
+%level	Log level (INFO, DEBUG...)
+%logger{36}	Logger name (trimmed to 36 chars)
+%msg	Actual log message
+%n	Newline
+%thread	Thread name
+
+🛡️ Best Practices
+✅ Always log to both console and file (for dev and prod).
+
+🔄 Use RollingFileAppender to rotate logs daily or by size.
+
+🧹 Set <maxHistory> to auto-delete old logs.
+
+🎯 Use <logger> to reduce log noise and debug specific packages.
+
+📦 Always configure your package name logger like com.nathan.taskzen.
+
+✅ What to Try Practically
+Here’s a 3-step task to solidify your understanding:
+
+Create logback.xml in src/main/resources
+
+Setup:
+
+Console
+
+RollingFileAppender
+
+Root logger with INFO
+
+Custom logger for com.nathan.taskzen with DEBUG
+
+Trigger logs from Controller/Service/Exception
+
+Want me to create a minimal working logback.xml tailored to your project structure (com.nathan.taskzen) with rotation + cleaner logs

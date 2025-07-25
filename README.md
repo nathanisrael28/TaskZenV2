@@ -1,8 +1,8 @@
 # TASKZEN V2 – PROGRESS TRACKER
 
-
 ✅ SPRINT 1: CORE SETUP + BASIC CRUD
 ------------------------------------
+
 - Project setup with v2 package structure
 - Entity + DTO created with Builder pattern
 - Status Enum (PENDING, COMPLETED)
@@ -13,6 +13,7 @@
 - Exception Handling basic done
 
 🚧 Remaining in Sprint 1:
+
 - [ ] Convert all service returns to Optional
 - [ ] Add default status logic in service (if null, set PENDING)
 - [ ] DTO clean builder & mapping refactor (if any pending)
@@ -21,6 +22,7 @@
 ✅ SPRINT 2: JAVA 8 ENHANCEMENTS
 ------------------------------------
 ⏳ Yet to start:
+
 - Use `Optional` meaningfully in service
 - Convert all for-loops → `stream().map()`
 - Add a `TaskMapper` utility class
@@ -47,29 +49,35 @@
 1️⃣ Default Status Logic:
 --------------------------
 🛠 In Service layer (createTask method):
+
 - If status in DTO is null → set it to PENDING before saving.
 
 🔁 Sample logic:
+
 ```
-if (taskDto.getStatus() == null) {
+if (taskResponseDto.getStatus() == null) {
     task.setStatus(Status.PENDING);
 } else {
-    task.setStatus(taskDto.getStatus());
+    task.setStatus(taskResponseDto.getStatus());
 }
 ```
+
 2️⃣ Optional Usage in Service:
 🛠 Replace null checks with Optional
 
 In getTask(id), use Optional cleanly
 
 For example:
+
 ```
 return repo.findById(id)
            .map(TaskMapper::mapToDto)
            .orElseThrow(() -> new TaskNotFoundException(id));
  ```
+
 3️⃣ Manual Mapper Utility (if not done):
 📦 Create a TaskMapper class under mapper/ package:
+
 ```
 public class TaskMapper {
 
@@ -94,6 +102,7 @@ public class TaskMapper {
     }
 }
 ```
+
 Then update your service to use this for conversion.
 
 4️⃣ Final Sanity Testing:
@@ -126,10 +135,12 @@ GlobalExceptionHandler triggers properly
 🏁 Sprint 1 – “MISSION COMPLETED”
 ________________________________________
 
-Before using builder() in mapToEntity() and mapToDto(), you need to enable the builder pattern in both the Entity and DTO using Lombok.
+Before using builder() in mapToEntity() and mapToDto(), you need to enable the builder pattern in both the Entity and
+DTO using Lombok.
 
 ✅ Step-by-step Setup for Builder
 📦 1. In TaskEntity.java
+
 ````
 @Entity
 @Data
@@ -152,7 +163,9 @@ public class TaskEntity {
     private Status status;
 }
 ````
+
 📦 2. In TaskDto.java
+
 ````
 @Data
 @Builder
@@ -174,7 +187,9 @@ public class TaskDto {
     private Status status;
 }
 ````
+
 ✅ After This, You Can Write Mappers Like:
+
 ````
 public class TaskMapper {
 
@@ -199,20 +214,23 @@ public class TaskMapper {
     }
 }
 ````
+
 ❗Reminder:
-If @Builder not given → TaskEntity.builder() or TaskDto.builder() won't compile. So you're absolutely right to prepare the DTO/Entity first 👏
+If @Builder not given → TaskEntity.builder() or TaskDto.builder() won't compile. So you're absolutely right to prepare
+the DTO/Entity first 👏
 
 # Without lombok ?
 
-
 ChatGPT said:
 🔥 Super intelligent question ra mama!
-Yes, you can absolutely use builder pattern manually without Lombok — but you'll have to write the boilerplate code yourself for both DTO and Entity.
+Yes, you can absolutely use builder pattern manually without Lombok — but you'll have to write the boilerplate code
+yourself for both DTO and Entity.
 
 Let’s do that like old-school warriors without Lombok 💪
 
 ✅ Manual Builder Pattern Without Lombok
 📦 1. TaskEntity.java (Manual Builder)
+
 ````
 public class TaskEntity {
 private Long id;
@@ -272,7 +290,9 @@ private Status status;
     // public Long getId() {...} 
 }
 ````
+
 📦 2. TaskDto.java (Manual Builder)
+
 ```
 public class TaskDto {
 private Long id;
@@ -329,7 +349,9 @@ private Status status;
     // ✅ Optional getters/setters for validation
 }
 ```
+
 ✨ Example usage (in mapper):
+
 ````
 TaskEntity task = new TaskEntity.Builder()
 .title(dto.getTitle())
@@ -338,27 +360,27 @@ TaskEntity task = new TaskEntity.Builder()
 .status(Status.PENDING)
 .build();
 ````
+
 ✅ Summary:
-Feature	Lombok	Manual
-Less boilerplate	✅	❌ (More code)
-Fine-grained control	❌	✅
-Good for learning	⚠️	✅🔥
-Production-ready	✅	✅
+Feature Lombok Manual
+Less boilerplate ✅ ❌ (More code)
+Fine-grained control ❌ ✅
+Good for learning ⚠️ ✅🔥
+Production-ready ✅ ✅
 
 _______________________________
 Builder Pattern – Chinna Brief Explanation
 🔧 What is it?
-Builder Pattern is a creational design pattern that lets you build complex objects step-by-step, instead of using big constructors with too many parameters.
+Builder Pattern is a creational design pattern that lets you build complex objects step-by-step, instead of using big
+constructors with too many parameters.
 
 🧠 Why Should I Use It?
 Imagine this constructor:
-
 
 new TaskEntity(101L, "Task", "Desc", LocalDate.now(), Status.PENDING);
 🥴 Chala confusing untadhi, especially when you have multiple String or Date types — order wrong pedithe bugs vasthai.
 
 Now with builder:
-
 
 new TaskEntity.Builder()
 .id(101L)
@@ -373,15 +395,16 @@ new TaskEntity.Builder()
 ➡️ Code maintainable & neat
 
 ⏱ When to Use?
-Use Case	Builder Useful?
-Too many constructor parameters	✅ YES
-Some fields are optional	✅ YES
-Immutable object kavali (no setters)	✅ YES
-Fluent API kavali (method chaining)	✅ YES
-JPA Entity with 2-3 fields max	❌ May not need
+Use Case Builder Useful?
+Too many constructor parameters ✅ YES
+Some fields are optional ✅ YES
+Immutable object kavali (no setters)    ✅ YES
+Fluent API kavali (method chaining)    ✅ YES
+JPA Entity with 2-3 fields max ❌ May not need
 
 🧰 How Does It Work?
-Internally, you create a static nested Builder class with the same fields, and a build() method that returns the main object.
+Internally, you create a static nested Builder class with the same fields, and a build() method that returns the main
+object.
 
 public static class Builder {
 private Long id;
@@ -416,7 +439,8 @@ If they ask:
 
 You say:
 
-"To simplify object creation when constructors get too messy, especially when we have optional and mandatory fields. It's also useful to make our code readable and safe from parameter misplacement."
+"To simplify object creation when constructors get too messy, especially when we have optional and mandatory fields.
+It's also useful to make our code readable and safe from parameter misplacement."
 
 ✅ That’s the scoop mama!
 

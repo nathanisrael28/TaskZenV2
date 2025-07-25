@@ -12,7 +12,7 @@ return ResponseEntity.status(HttpStatus.CREATED)
 java
 Copy
 Edit
-return new ResponseEntity<>(taskService.createTask(taskDto), HttpStatus.CREATED);
+return new ResponseEntity<>(taskService.createTask(taskRequestDto), HttpStatus.CREATED);
 🔹 Traditional way using the constructor of ResponseEntity.
 🔹 Slightly more verbose and less readable when you're chaining headers or other custom response setup.
 

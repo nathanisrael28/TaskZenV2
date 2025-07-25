@@ -13,8 +13,8 @@ public interface TaskControllerDocs {
             @ApiResponse(responseCode = "400", description = "Validation error"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PostMapping("/taskDto")
-    Object createTask(@RequestBody Object taskDto);
+    @PostMapping("/taskResponseDto")
+    Object createTask(@RequestBody Object taskResponseDto);
 
 
     @Operation(summary = "Get all Tasks")
@@ -53,9 +53,9 @@ If interface-based feels too formal for now, try only annotating the most meanin
 
 
 @Operation(summary = "Create a Task")
-@PostMapping("/taskDto")
-public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskDto) {
-    return new ResponseEntity<>(taskService.createTask(taskDto), HttpStatus.CREATED);
+@PostMapping("/taskResponseDto")
+public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskResponseDto) {
+    return new ResponseEntity<>(taskService.createTask(taskResponseDto), HttpStatus.CREATED);
 }
 💡 Swagger will auto-generate 200/201 based on the @PostMapping or @PutMapping if you skip @ApiResponses.
 
@@ -113,10 +113,10 @@ That’s it — this applies the listed responses to all methods inside the clas
 
 
 @Operation(summary = "Create a Task")
-@PostMapping("/taskDto")
-public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskDto) {
-    log.info("Creating task with title: {}", taskDto.getTitle());
-    return new ResponseEntity<>(taskService.createTask(taskDto), HttpStatus.CREATED);
+@PostMapping("/taskResponseDto")
+public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskResponseDto) {
+    log.info("Creating task with title: {}", taskResponseDto.getTitle());
+    return new ResponseEntity<>(taskService.createTask(taskResponseDto), HttpStatus.CREATED);
 }
 
 @Operation(summary = "Get all Tasks")
@@ -140,8 +140,8 @@ public ResponseEntity<TaskDto> getTask(@PathVariable Long id) {
 
 @Operation(summary = "Update a Task")
 @PutMapping("/task/")
-public ResponseEntity<Optional<TaskDto>> updateTask(@RequestBody @Valid TaskDto taskDto) {
-    return new ResponseEntity<>(taskService.updateTask(taskDto), HttpStatus.ACCEPTED);
+public ResponseEntity<Optional<TaskDto>> updateTask(@RequestBody @Valid TaskDto taskResponseDto) {
+    return new ResponseEntity<>(taskService.updateTask(taskResponseDto), HttpStatus.ACCEPTED);
 }
 
 @Operation(summary = "Update Status of a Task")
@@ -215,9 +215,9 @@ Then just add 1 success response per method, depending on its purpose:
 
 @Operation(summary = "Create a Task")
 @ApiResponse(responseCode = "201", description = "Task created successfully")
-@PostMapping("/taskDto")
-public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskDto) {
-    return new ResponseEntity<>(taskService.createTask(taskDto), HttpStatus.CREATED);
+@PostMapping("/taskResponseDto")
+public ResponseEntity<Optional<TaskDto>> createTask(@RequestBody @Valid TaskDto taskResponseDto) {
+    return new ResponseEntity<>(taskService.createTask(taskResponseDto), HttpStatus.CREATED);
 }
 
 
@@ -234,8 +234,8 @@ public ResponseEntity<List<TaskDto>> getAllTask() {
 @Operation(summary = "Update a Task")
 @ApiResponse(responseCode = "202", description = "Task updated successfully")
 @PutMapping("/task/")
-public ResponseEntity<Optional<TaskDto>> updateTask(@RequestBody @Valid TaskDto taskDto) {
-    return new ResponseEntity<>(taskService.updateTask(taskDto), HttpStatus.ACCEPTED);
+public ResponseEntity<Optional<TaskDto>> updateTask(@RequestBody @Valid TaskDto taskResponseDto) {
+    return new ResponseEntity<>(taskService.updateTask(taskResponseDto), HttpStatus.ACCEPTED);
 }
 ✨ Final Verdict:
 Type	Where to put it?	Why?
